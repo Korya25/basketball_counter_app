@@ -1,5 +1,5 @@
 // Counter Cubit
-import 'package:basketball_counter_app/cubits/countir_state.dart';
+import 'package:basketball_counter_app/cubits/countir_cubit/countir_state.dart';
 import 'package:basketball_counter_app/utils/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

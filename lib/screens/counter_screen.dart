@@ -1,6 +1,6 @@
 import 'package:basketball_counter_app/constant/colors.dart';
-import 'package:basketball_counter_app/cubits/countir_cubit.dart';
-import 'package:basketball_counter_app/cubits/countir_state.dart';
+import 'package:basketball_counter_app/cubits/countir_cubit/countir_cubit.dart';
+import 'package:basketball_counter_app/cubits/countir_cubit/countir_state.dart';
 import 'package:basketball_counter_app/utils/vertical_devider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +53,10 @@ class CounterScreen extends StatelessWidget {
                         context,
                       ),
                     ),
-                    CustomVerticalDevider(height: size.height * 0.5),
+                    CustomVerticalDevider(
+                      height: size.height * 0.5,
+                      color: Colors.grey,
+                    ),
                     BlocBuilder<CounterCubit, CounterState>(
                       builder: (context, state) => buildTeamSection(
                         size,
@@ -89,6 +92,7 @@ class CounterScreen extends StatelessWidget {
               teamName,
               textAlign: TextAlign.center,
               style: TextStyle(
+                color: Colors.black,
                 fontSize: size.width * 0.07,
                 fontWeight: FontWeight.bold,
               ),
@@ -160,7 +164,10 @@ class CounterScreen extends StatelessWidget {
                   size: size.width * 0.08,
                 ),
               ),
-              CustomVerticalDevider(height: size.height * 0.03),
+              CustomVerticalDevider(
+                height: size.height * 0.03,
+                color: Colors.white,
+              ),
               IconButton(
                 onPressed: () =>
                     context.read<CounterCubit>().minusScore(team, -points),

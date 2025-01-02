@@ -1,9 +1,8 @@
-import 'package:basketball_counter_app/constant/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomVerticalDevider extends StatelessWidget {
   const CustomVerticalDevider(
-      {super.key, required this.height, this.color = dividerColor});
+      {super.key, required this.height, required this.color});
   final double height;
   final Color color;
   @override
