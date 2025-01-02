@@ -1,204 +1,12 @@
 import 'package:basketball_counter_app/constant/colors.dart';
-import 'package:basketball_counter_app/utils/custom_dialog.dart';
+import 'package:basketball_counter_app/cubits/countir_cubit.dart';
+import 'package:basketball_counter_app/cubits/countir_state.dart';
+import 'package:basketball_counter_app/utils/vertical_devider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CounterScreen extends StatefulWidget {
+class CounterScreen extends StatelessWidget {
   const CounterScreen({super.key});
-
-  @override
-  State<CounterScreen> createState() => _CounterScreenState();
-}
-
-class _CounterScreenState extends State<CounterScreen> {
-  int teamAScore = 0;
-  int teamBScore = 0;
-  String teamAName = 'Team A';
-  String teamBName = 'Team B';
-
-  // List to store the history of score changes
-  List<String> scoreHistory = [];
-
-  void updateScore(String team, int points) {
-    setState(() {
-      if (team == teamAName) {
-        teamAScore = (teamAScore + points).clamp(0, double.infinity).toInt();
-      } else {
-        teamBScore = (teamBScore + points).clamp(0, double.infinity).toInt();
-      }
-
-      // Record the change in the history
-      String timestamp = DateFormat('hh:mm:ss a').format(DateTime.now());
-      String change = points > 0 ? "+$points" : "$points";
-      scoreHistory.add("[$timestamp] $team: $change points");
-    });
-  }
-
-  void miunsScore(String team, int points) {
-    setState(() {
-      if (teamAScore != 0 || teamBScore != 0) {
-        if (team == teamAName) {
-          teamAScore = (teamAScore + points).clamp(0, double.infinity).toInt();
-        } else {
-          teamBScore = (teamBScore + points).clamp(0, double.infinity).toInt();
-        }
-        // Record the change in the history
-        String timestamp = DateFormat('hh:mm:ss a').format(DateTime.now());
-        String change = points > 0 ? "+$points" : "$points";
-        scoreHistory.add("[$timestamp] $team: $change points");
-      }
-    });
-  }
-
-  void editTeamName(String team) {
-    TextEditingController controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 53, 52, 52),
-        shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        title: Text(
-          "Edit Name",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: TextField(
-            style: TextStyle(
-              color: Colors.white,
-            ),
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: team,
-              hintStyle: const TextStyle(color: Colors.grey),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              "Cancel",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                if (team == teamAName) {
-                  teamAName =
-                      controller.text.isEmpty ? teamAName : controller.text;
-                } else {
-                  teamBName =
-                      controller.text.isEmpty ? teamBName : controller.text;
-                }
-              });
-              Navigator.pop(context);
-            },
-            child: const Text(
-              "Save",
-              style: TextStyle(
-                color: Colors.blue,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void resetScores() {
-    if (teamAScore != 0 || teamBScore != 0) {
-      CustomDialogHandler.showCustomDialog(
-        height: 70,
-        context,
-        "Are you sure you want to reset the scores?",
-        backgroundColor: const Color.fromARGB(255, 53, 52, 52),
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
-        ),
-        buttontextStyle: TextStyle(
-          color: Colors.blue,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
-        ),
-        cancelTap: () => Navigator.pop(context),
-        agreeName: 'Reset',
-        enableCancelButton: true,
-        agreeTap: () {
-          setState(() {
-            teamAScore = 0;
-            teamBScore = 0;
-            scoreHistory.add(
-                "[${DateFormat('hh:mm:ss a').format(DateTime.now())}] Scores reset to 0.");
-          });
-          Navigator.pop(context);
-        },
-      );
-    } else {
-      CustomDialogHandler.showCustomDialog(
-        height: 50,
-        backgroundColor: const Color.fromARGB(255, 53, 52, 52),
-        context,
-        "No points to remove",
-        buttontextStyle: TextStyle(
-          color: Colors.blue,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
-        ),
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
-        ),
-        agreeTap: () {
-          Navigator.pop(context);
-        },
-      );
-    }
-  }
-
-  void showHistory() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Score History"),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: scoreHistory
-                .map((event) => Text(
-                      event,
-                      style: const TextStyle(fontSize: 14, color: Colors.black),
-                    ))
-                .toList(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +27,7 @@ class _CounterScreenState extends State<CounterScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: showHistory,
+            onPressed: () => context.read<CounterCubit>().showHistory(context),
             icon: const Icon(
               Icons.history,
               color: Colors.white,
@@ -233,19 +41,31 @@ class _CounterScreenState extends State<CounterScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
-                  height: 32,
-                ),
+                const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    buildTeamSection(size, teamAName, teamAScore),
-                    buildVerticalDivider(height: size.height * 0.5),
-                    buildTeamSection(size, teamBName, teamBScore),
+                    BlocBuilder<CounterCubit, CounterState>(
+                      builder: (context, state) => buildTeamSection(
+                        size,
+                        context.read<CounterCubit>().teamAName,
+                        context.read<CounterCubit>().teamAScore,
+                        context,
+                      ),
+                    ),
+                    CustomVerticalDevider(height: size.height * 0.5),
+                    BlocBuilder<CounterCubit, CounterState>(
+                      builder: (context, state) => buildTeamSection(
+                        size,
+                        context.read<CounterCubit>().teamBName,
+                        context.read<CounterCubit>().teamBScore,
+                        context,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: size.height * 0.05),
-                buildResetButton(size),
+                buildResetButton(size, context),
               ],
             ),
           ),
@@ -254,7 +74,12 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
-  Widget buildTeamSection(Size size, String teamName, int score) {
+  Widget buildTeamSection(
+    Size size,
+    String teamName,
+    int score,
+    BuildContext context,
+  ) {
     return Column(
       children: [
         Row(
@@ -268,10 +93,10 @@ class _CounterScreenState extends State<CounterScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(width: 5),
             GestureDetector(
-              onTap: () {
-                editTeamName(teamName);
-              },
+              onTap: () =>
+                  context.read<CounterCubit>().editTeamName(context, teamName),
               child: Icon(
                 Icons.edit,
                 color: Colors.black12,
@@ -290,18 +115,24 @@ class _CounterScreenState extends State<CounterScreen> {
         ),
         Column(
           children: [
-            buildPointControl(size, '1 Point', teamName, 1),
+            buildPointControl(size, '1 Point', teamName, 1, context),
             SizedBox(height: size.height * 0.02),
-            buildPointControl(size, '2 Points', teamName, 2),
+            buildPointControl(size, '2 Points', teamName, 2, context),
             SizedBox(height: size.height * 0.02),
-            buildPointControl(size, '3 Points', teamName, 3),
+            buildPointControl(size, '3 Points', teamName, 3, context),
           ],
         ),
       ],
     );
   }
 
-  Widget buildPointControl(Size size, String title, String team, int points) {
+  Widget buildPointControl(
+    Size size,
+    String title,
+    String team,
+    int points,
+    BuildContext context,
+  ) {
     return Column(
       children: [
         Text(
@@ -321,16 +152,18 @@ class _CounterScreenState extends State<CounterScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                onPressed: () => updateScore(team, points),
+                onPressed: () =>
+                    context.read<CounterCubit>().addScore(team, points),
                 icon: Icon(
                   Icons.add_circle,
                   color: addIconColor,
                   size: size.width * 0.08,
                 ),
               ),
-              buildVerticalDivider(height: size.height * 0.03),
+              CustomVerticalDevider(height: size.height * 0.03),
               IconButton(
-                onPressed: () => miunsScore(team, -points),
+                onPressed: () =>
+                    context.read<CounterCubit>().minusScore(team, -points),
                 icon: Icon(
                   Icons.remove_circle,
                   color: removeIconColor,
@@ -344,9 +177,9 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
-  Widget buildResetButton(Size size) {
+  Widget buildResetButton(Size size, BuildContext context) {
     return GestureDetector(
-      onTap: resetScores,
+      onTap: () => context.read<CounterCubit>().resetScores(context),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: size.width * 0.05,
@@ -364,17 +197,6 @@ class _CounterScreenState extends State<CounterScreen> {
             fontSize: size.width * 0.045,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget buildVerticalDivider(
-      {required double height, Color color = dividerColor}) {
-    return SizedBox(
-      height: height,
-      child: VerticalDivider(
-        thickness: 0.3,
-        color: color,
       ),
     );
   }
